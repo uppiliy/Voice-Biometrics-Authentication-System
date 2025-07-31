@@ -1,9 +1,9 @@
 fastapi
 uvicorn
-speechbrain
+torch
 torchaudio
-numpy
-scipy
-jinja2
+soundfile
 python-multipart
-
+scipy
+numpy
+speechbrain

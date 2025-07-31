@@ -1,15 +1,37 @@
-import numpy as np, io, os, torch, torchaudio
+import io
+import torch
+import torchaudio
+import numpy as np
+import os
 from scipy.spatial.distance import cosine
-from speechbrain.inference import EncoderClassifier
 
-clf = EncoderClassifier.from_hparams(source="speechbrain/spkrec-ecapa-voxceleb")
+# Ensure torchaudio uses the correct backend
+torchaudio.set_audio_backend("soundfile")  # Avoids missing sox_io errors
+
+# Load ECAPA-TDNN model
+from speechbrain.pretrained import EncoderClassifier
+encoder = EncoderClassifier.from_hparams(source="speechbrain/spkrec-ecapa-voxceleb", savedir="pretrained_model")
+
+EMBED_DIR = "embeddings"
+os.makedirs(EMBED_DIR, exist_ok=True)
+
 def extract_embedding(audio_bytes):
-    wav, sr = torchaudio.load(io.BytesIO(audio_bytes))
-    if wav.shape[0]>1: wav=torch.mean(wav,0,keepdim=True)
-    emb = clf.encode_batch(wav)
-    return emb.squeeze().cpu().detach().numpy()
-def cosine_similarity(a,b): return 1-cosine(a,b)
-def save_embedding(uid, emb, folder="embeddings"):
-    os.makedirs(folder,exist_ok=True); np.save(os.path.join(folder,f"{uid}.npy"),emb)
-def load_embedding(uid, folder="embeddings"):
-    p=os.path.join(folder,f"{uid}.npy"); return np.load(p) if os.path.exists(p) else None
+    waveform, sr = torchaudio.load(io.BytesIO(audio_bytes))
+    if sr != 16000:
+        resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=16000)
+        waveform = resampler(waveform)
+    embedding = encoder.encode_batch(waveform)
+    return embedding.squeeze().detach().cpu().numpy()
+
+def save_embedding(user_id, embedding):
+    path = os.path.join(EMBED_DIR, f"{user_id}.npy")
+    np.save(path, embedding)
+
+def load_embedding(user_id):
+    path = os.path.join(EMBED_DIR, f"{user_id}.npy")
+    if os.path.exists(path):
+        return np.load(path)
+    return None
+
+def cosine_similarity(v1, v2):
+    return 1 - cosine(v1, v2)
