@@ -9,7 +9,7 @@ from scipy.spatial.distance import cosine
 torchaudio.set_audio_backend("soundfile")  # Avoids missing sox_io errors
 
 # Load ECAPA-TDNN model
-from speechbrain.pretrained import EncoderClassifier
+from speechbrain.inference import EncoderClassifier
 encoder = EncoderClassifier.from_hparams(source="speechbrain/spkrec-ecapa-voxceleb", savedir="pretrained_model")
 
 EMBED_DIR = "embeddings"
