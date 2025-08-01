@@ -5,6 +5,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
 from app.utils import extract_embedding, save_embedding, load_embedding, cosine_similarity
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 # Determine the base directory relative to this file
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -35,19 +38,26 @@ async def enroll_voice(
     return {"message": "Enrollment successful", "user_id": user_id}
 
 @app.post("/verify-voice")
-async def verify_voice(
-    user_id: str = Form(...),
-    audio_file: UploadFile = Form(...),
-):
+async def verify_voice(user_id: str = Form(...), audio_file: UploadFile = Form(...)):
+    logging.info(f"🔍 Verify called for user_id={user_id}")
     stored = load_embedding(user_id)
     if stored is None:
+        logging.warning(f"⚠️ No embedding found for user {user_id}")
         return JSONResponse(status_code=404, content={"error": "User not enrolled"})
 
-    audio_bytes = await audio_file.read()
-    emb = extract_embedding(audio_bytes)
-    sim = cosine_similarity(stored, emb)
-    return {
-        "user_id": user_id,
-        "verified": bool(sim >= 0.75),
-        "similarity": round(float(sim), 4),
-    }
+    try:
+        audio_bytes = await audio_file.read()
+        logging.info(f"📥 Received {len(audio_bytes)} bytes for verification")
+
+        emb = extract_embedding(audio_bytes)
+        sim = cosine_similarity(stored, emb)
+        logging.info(f"✅ Cosine similarity: {sim:.4f}")
+
+        return {
+            "user_id": user_id,
+            "verified": bool(sim >= 0.75),
+            "similarity": round(float(sim), 4),
+        }
+    except Exception as e:
+        logging.exception("❌ Error in /verify-voice")
+        return JSONResponse(status_code=500, content={"error": str(e)})
