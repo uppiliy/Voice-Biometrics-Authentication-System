@@ -30,8 +30,7 @@ document.getElementById("enrollForm").addEventListener("submit", async (e) => {
   }
 
   // Clear inputs so you can submit again
-  resetFileInput(fileInput);
-  userInput.value = "";
+  document.getElementById("enrollForm").reset();
 });
 
 document.getElementById("verifyForm").addEventListener("submit", async (e) => {
@@ -61,6 +60,5 @@ document.getElementById("verifyForm").addEventListener("submit", async (e) => {
   }
 
   // Clear inputs for reuse
-  resetFileInput(fileInput);
-  userInput.value = "";
+  document.getElementById("verifyForm").reset();
 });

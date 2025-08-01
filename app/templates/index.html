@@ -9,16 +9,16 @@
 
   <form id="enrollForm">
     <h2>Enroll Voice</h2>
-    <input type="file" id="enrollFile" accept=".wav,.flac" required />
-    <input type="text"    id="enrollUser" placeholder="User ID" required />
+    <input type="file" id="enrollFile" name="audio_file" accept=".wav,.flac" required />
+    <input type="text" id="enrollUser" name="user_id" placeholder="User ID" required />
     <button type="submit">Enroll</button>
     <pre id="enrollResult"></pre>
-  </form>
+    </form>
 
-  <form id="verifyForm">
+    <form id="verifyForm">
     <h2>Verify Voice</h2>
-    <input type="file" id="verifyFile" accept=".wav,.flac" required />
-    <input type="text" id="verifyUser" placeholder="User ID" required />
+    <input type="file" id="verifyFile" name="audio_file" accept=".wav,.flac" required />
+    <input type="text" id="verifyUser" name="user_id" placeholder="User ID" required />
     <button type="submit">Verify</button>
     <pre id="verifyResult"></pre>
   </form>
