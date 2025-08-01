@@ -3,12 +3,36 @@ function resetFileInput(input) {
   input.value = "";
 }
 
+async function handleResponse(res, resultBox) {
+  // Read the raw text first
+  const text = await res.text();
+
+  // Try to parse JSON; if it fails, show the raw response and bail out
+  let payload;
+  try {
+    payload = JSON.parse(text);
+  } catch (e) {
+    resultBox.textContent = `❌ Non-JSON response (status ${res.status}):\n${text}`;
+    return null;
+  }
+
+  // If server responded with an error code, display its JSON error payload
+  if (!res.ok) {
+    const errMsg = payload.error || JSON.stringify(payload);
+    resultBox.textContent = `❌ ${errMsg}`;
+    return null;
+  }
+
+  // Success!
+  resultBox.textContent = JSON.stringify(payload, null, 2);
+  return payload;
+}
+
 document.getElementById("enrollForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  console.log("Enroll form submitted");
-  const fileInput = document.getElementById("enrollFile");
-  const userInput = document.getElementById("enrollUser");
-  const resultBox = document.getElementById("enrollResult");
+  const fileInput  = document.getElementById("enrollFile");
+  const userInput  = document.getElementById("enrollUser");
+  const resultBox  = document.getElementById("enrollResult");
 
   if (!fileInput.files.length) {
     resultBox.textContent = "❌ No file selected";
@@ -16,29 +40,20 @@ document.getElementById("enrollForm").addEventListener("submit", async (e) => {
   }
 
   const form = new FormData();
-  form.append("user_id", userInput.value);
+  form.append("user_id",    userInput.value);
   form.append("audio_file", fileInput.files[0]);
 
-  try {
-    const res = await fetch("/enroll-voice", { method: "POST", body: form });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || JSON.stringify(data));
-    resultBox.textContent = JSON.stringify(data, null, 2);
-  } catch (err) {
-    console.error("Enroll error:", err);
-    resultBox.textContent = `❌ ${err.message}`;
-  }
+  const res = await fetch("/enroll-voice", { method: "POST", body: form });
+  await handleResponse(res, resultBox);
 
-  // Clear inputs so you can submit again
   document.getElementById("enrollForm").reset();
 });
 
 document.getElementById("verifyForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  console.log("Verify form submitted");
-  const fileInput = document.getElementById("verifyFile");
-  const userInput = document.getElementById("verifyUser");
-  const resultBox = document.getElementById("verifyResult");
+  const fileInput  = document.getElementById("verifyFile");
+  const userInput  = document.getElementById("verifyUser");
+  const resultBox  = document.getElementById("verifyResult");
 
   if (!fileInput.files.length) {
     resultBox.textContent = "❌ No file selected";
@@ -46,19 +61,11 @@ document.getElementById("verifyForm").addEventListener("submit", async (e) => {
   }
 
   const form = new FormData();
-  form.append("user_id", userInput.value);
+  form.append("user_id",    userInput.value);
   form.append("audio_file", fileInput.files[0]);
 
-  try {
-    const res = await fetch("/verify-voice", { method: "POST", body: form });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || JSON.stringify(data));
-    resultBox.textContent = JSON.stringify(data, null, 2);
-  } catch (err) {
-    console.error("Verify error:", err);
-    resultBox.textContent = `❌ ${err.message}`;
-  }
+  const res = await fetch("/verify-voice", { method: "POST", body: form });
+  await handleResponse(res, resultBox);
 
-  // Clear inputs for reuse
   document.getElementById("verifyForm").reset();
 });
