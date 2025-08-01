@@ -1,4 +1,28 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Voice Biometrics</title></head><body>
-<h1>Voice Biometrics Authentication</h1><section><h2>Enroll</h2><input type="file" id="enrollFile"/><input id="enrollUser"/><button onclick="enroll()">Enroll</button><pre id="enrollResult"></pre></section>
-<section><h2>Verify</h2><input type="file" id="verifyFile"/><input id="verifyUser"/><button onclick="verify()">Verify</button><pre id="verifyResult"></pre></section>
-<script src="/static/app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Voice Biometrics</title>
+</head>
+<body>
+  <h1>Voice Biometrics Authentication</h1>
+
+  <form id="enrollForm">
+    <h2>Enroll Voice</h2>
+    <input type="file" id="enrollFile" accept=".wav,.flac" required />
+    <input type="text"    id="enrollUser" placeholder="User ID" required />
+    <button type="submit">Enroll</button>
+    <pre id="enrollResult"></pre>
+  </form>
+
+  <form id="verifyForm">
+    <h2>Verify Voice</h2>
+    <input type="file" id="verifyFile" accept=".wav,.flac" required />
+    <input type="text" id="verifyUser" placeholder="User ID" required />
+    <button type="submit">Verify</button>
+    <pre id="verifyResult"></pre>
+  </form>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
