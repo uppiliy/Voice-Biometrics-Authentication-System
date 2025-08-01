@@ -25,34 +25,37 @@ def get_encoder():
 EMBED_DIR = "embeddings"
 os.makedirs(EMBED_DIR, exist_ok=True)
 
-
-def extract_embedding(audio_bytes):
+def extract_embedding(audio_bytes, max_duration_sec: float = 5.0):
     """
     Extracts a speaker embedding from raw audio bytes.
+    Trims audio to max_duration_sec if longer.
     """
     waveform, sr = torchaudio.load(io.BytesIO(audio_bytes))
+
     # Resample if needed
     if sr != 16000:
         resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=16000)
         waveform = resampler(waveform)
+        sr = 16000
 
-    # Use lazy-loaded encoder
+    # Trim audio to avoid long inputs (for hosting limits)
+    max_samples = int(sr * max_duration_sec)
+    if waveform.shape[1] > max_samples:
+        waveform = waveform[:, :max_samples]
+
     encoder = get_encoder()
     embedding = encoder.encode_batch(waveform)
     return embedding.squeeze().detach().cpu().numpy()
 
-
 def save_embedding(user_id, embedding):
     path = os.path.join(EMBED_DIR, f"{user_id}.npy")
     np.save(path, embedding)
-
 
 def load_embedding(user_id):
     path = os.path.join(EMBED_DIR, f"{user_id}.npy")
     if os.path.exists(path):
         return np.load(path)
     return None
-
 
 def cosine_similarity(v1, v2):
     return 1 - cosine(v1, v2)
