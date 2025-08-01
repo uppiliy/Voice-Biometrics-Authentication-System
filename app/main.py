@@ -8,9 +8,10 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 
-@app.get("/") 
+@app.api_route("/", methods=["GET", "HEAD"])
 def home(request: Request): 
     return templates.TemplateResponse("index.html", {"request": request})
+
 
 @app.post("/enroll-voice")
 async def enroll_voice(user_id: str = Form(...), audio_file: UploadFile = Form(...)):
