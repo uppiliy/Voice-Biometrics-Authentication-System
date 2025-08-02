@@ -33,5 +33,5 @@ EXPOSE ${PORT}
 HEALTHCHECK --interval=30s --timeout=5s \
   CMD curl -f http://localhost:${PORT}/ || exit 1
 
-# Start the FastAPI application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "${PORT}"]
+# Start the FastAPI application using shell form so PORT is expanded
+CMD exec uvicorn app.main:app --host 0.0.0.0 --port $PORT
