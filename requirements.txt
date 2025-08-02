@@ -1,13 +1,15 @@
 fastapi
-uvicorn
+uvicorn[standard]           # Adds logging, auto-reload, and performance extras
 torch
 torchaudio
-soundfile
-python-multipart
+soundfile                   # Backend for torchaudio
+python-multipart            # For file uploads
 scipy
 numpy
 speechbrain
-sqlalchemy[asyncio]
-asyncpg
-python-dotenv
-
+sqlalchemy[asyncio]         # Required for async engine and session
+asyncpg                     # PostgreSQL driver
+databases[postgresql]       # Optional but helpful if you use databases package
+python-dotenv               # For local env var support
+jinja2                      # For HTML templating
+sqlalchemy>=1.4
