@@ -7,3 +7,7 @@ python-multipart
 scipy
 numpy
 speechbrain
+sqlalchemy[asyncio]
+asyncpg
+python-dotenv
+
